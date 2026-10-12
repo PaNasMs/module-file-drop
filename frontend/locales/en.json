@@ -1,0 +1,9 @@
+{
+  "title": "File Drop", "subtitle": "Receive files from Android Quick Share", "receive": "Receive", "transfers": "Transfers", "myFolder": "My folder",
+  "receiveHelp": "Open receiving for your account, then select PaNasMs in Quick Share on your Android phone. Confirm each transfer here after comparing the PIN on both devices.",
+  "destination": "Destination", "discoverableUntil": "Visible to nearby devices until {{time}}", "start": "Receive files for 10 minutes", "stop": "Stop receiving", "busy": "Another user is receiving files now. Try again later.",
+  "receivingFiles": "Receiving {{count}} files in the background", "noTransfers": "No transfers yet", "completed": "Completed", "failed": "Failed", "receiving": "Receiving",
+  "folderHelp": "Choose a folder in your home. Incoming files are written with your Linux account permissions.", "changeFolder": "Change folder", "useDefault": "Use default folder",
+  "incomingRequest": "Incoming Quick Share request", "checkPin": "Compare this PIN with the one on your Android device. Accept only if they match.",
+  "decline": "Decline", "accept": "Receive files"
+}

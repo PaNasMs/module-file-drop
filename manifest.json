@@ -1,0 +1,21 @@
+{
+  "id": "file-drop",
+  "title": "File Drop",
+  "description": "Receive files from Android Quick Share with confirmation for every transfer.",
+  "version": "0.1.6",
+  "api": 1,
+  "core": ">=0.2.22,<0.3.0",
+  "architecture": "arm64",
+  "signer": "panasms-ci",
+  "service": "bin/server",
+  "memberAccess": true,
+  "userShell": true,
+  "dependencies": {},
+  "packages": { "libc6": "2.34" },
+  "license": "SUL-1.0",
+  "translations": {
+    "en": { "title": "File Drop", "description": "Receive files from Android Quick Share with confirmation for every transfer." },
+    "ru": { "title": "File Drop", "description": "Приём файлов из Quick Share на Android с подтверждением каждой передачи." },
+    "uk": { "title": "File Drop", "description": "Отримання файлів із Quick Share на Android з підтвердженням кожного передавання." }
+  }
+}

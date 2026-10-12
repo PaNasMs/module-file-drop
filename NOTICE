@@ -1,0 +1,6 @@
+File Drop includes a modified copy of ACLzz/qshare (commit
+0d072544e51030ae7b8dafa0d084f7ad17965209) under the MIT License and
+Apache License 2.0 notices included in third_party/qshare/LICENSE.
+
+The qshare copy has local changes for bounded connections, transfer cleanup,
+and completion reporting. It is not an upstream release.

@@ -1,0 +1,9 @@
+.file-drop-page .section-content { min-width: 0; }
+.file-drop-panel { max-width: 42rem; background: var(--panel); border-radius: var(--radius-lg); padding: 24px; -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass); }
+.file-drop-panel h2 { margin-top: 0; }
+.file-drop-path { overflow-wrap: anywhere; }
+.file-drop-history { list-style: none; padding: 0; }
+.file-drop-history li { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+.file-drop-pin { display: block; font-size: 2rem; letter-spacing: .25em; text-align: center; font-variant-numeric: tabular-nums; }
+.file-drop-indicator { display: inline-flex; align-items: center; gap: 6px; padding: 8px; color: inherit; }
+@media (max-width: 639px) { .file-drop-panel { padding: 16px; } .file-drop-indicator span { display: none; } }
