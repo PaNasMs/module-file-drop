@@ -67,7 +67,7 @@ function Page() {
         { id: 'transfers', title: tr('transfers'), icon: mdiHistory },
         { id: 'folder', title: tr('myFolder'), icon: mdiFolderOutline },
       ]} />
-      <main className="section-content">
+      <div className="section-content">
         {part === 'receive' && <section className="file-drop-panel">
           <h2>{tr('receive')}</h2>
           <p>{tr('receiveHelp')}</p>
@@ -101,7 +101,7 @@ function Page() {
           </div>
           {save.error && <Notice error>{save.error.message}</Notice>}
         </section>}
-      </main>
+      </div>
     </div>
     <Dialog.Root open={!!offer} onOpenChange={open => { if (!open && offer && !decide.isPending) decide.mutate('decline') }}>
       <Dialog.Portal><Dialog.Overlay className="dialog-overlay" />
