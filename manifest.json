@@ -2,7 +2,7 @@
   "id": "file-drop",
   "title": "File Drop",
   "description": "Receive files from Android Quick Share with confirmation for every transfer.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "api": 1,
   "core": ">=0.2.22,<0.3.0",
   "architecture": "arm64",
