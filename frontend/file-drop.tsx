@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from 'react-router-dom'
@@ -44,23 +44,48 @@ function Indicator() {
 function Page() {
   const [part, setPart] = useRouteTab('/file-drop', ['receive', 'transfers', 'folder'], 'receive')
   const [folderOpen, setFolderOpen] = useState(false)
+  const [reviewedOffer, setReviewedOffer] = useState<Offer | null>(null)
+  const [expired, setExpired] = useState(false)
+  useEffect(() => {
+    if (!reviewedOffer) return
+    const remaining = new Date(reviewedOffer.expires).getTime() - Date.now()
+    setExpired(remaining <= 0)
+    const timer = window.setTimeout(() => setExpired(true), Math.max(0, remaining))
+    return () => window.clearTimeout(timer)
+  }, [reviewedOffer])
   const client = useQueryClient()
   const query = useQuery({ queryKey: stateKey, queryFn: view, refetchInterval: 2000, retry: false })
   const refresh = () => void client.invalidateQueries({ queryKey: stateKey })
   const start = useMutation({ mutationFn: () => api('window', 'POST'), onSuccess: refresh })
   const stop = useMutation({ mutationFn: () => api('window', 'DELETE'), onSuccess: refresh })
   const decide = useMutation({
-    mutationFn: (decision: 'accept' | 'decline') => api('offer', 'POST', { id: query.data?.offer?.id, decision }),
-    onSuccess: refresh,
+    mutationFn: (decision: { id: string; decision: 'accept' | 'decline' }) => api('offer', 'POST', decision),
+    onSuccess: () => { setReviewedOffer(null); refresh() },
   })
   const save = useMutation({
     mutationFn: (path: string) => api('inbox', 'POST', { path }),
     onSuccess: () => { setFolderOpen(false); refresh() },
   })
   const offer = query.data?.offer
+  const unavailable = !!reviewedOffer && reviewedOffer.id !== offer?.id
+  const canDecide = !!reviewedOffer && !unavailable && !expired && !query.error && !decide.isPending
+  const review = () => {
+    if (!offer) return
+    decide.reset()
+    setExpired(new Date(offer.expires).getTime() <= Date.now())
+    setReviewedOffer(offer)
+  }
+  const submit = (decision: 'accept' | 'decline') => {
+    if (canDecide && reviewedOffer) decide.mutate({ id: reviewedOffer.id, decision })
+  }
   return <div className="file-drop-page">
     <div className="page-heading"><div><h1>{tr('title')}</h1><p className="muted">{tr('subtitle')}</p></div></div>
     {query.error && <Notice error>{query.error.message}</Notice>}
+    {offer && <Notice>
+      <p>{tr('incomingRequest')} · {tr('pendingFiles', { count: offer.files.length })}</p>
+      <p>{tr('requestExpires', { time: new Date(offer.expires).toLocaleTimeString() })}</p>
+      <Button disabled={folderOpen || decide.isPending} onClick={review}>{tr('reviewRequest')}</Button>
+    </Notice>}
     <div className="section-layout settings-page">
       <SectionNav label={tr('title')} tabs={false} value={part} onChange={setPart} items={[
         { id: 'receive', title: tr('receive'), icon: mdiInboxArrowDownOutline },
@@ -103,14 +128,19 @@ function Page() {
         </section>}
       </div>
     </div>
-    <Dialog.Root open={!!offer} onOpenChange={open => { if (!open && offer && !decide.isPending) decide.mutate('decline') }}>
+    <Dialog.Root open={!!reviewedOffer} onOpenChange={open => { if (!open && !decide.isPending) setReviewedOffer(null) }}>
       <Dialog.Portal><Dialog.Overlay className="dialog-overlay" />
-        <DialogContent className="settings-dialog" variant="compact" intent="confirm" dirty={false}
+        <DialogContent className="settings-dialog" variant="compact" intent="confirm" dirty={false} busy={decide.isPending}
           header={<><Dialog.Title>{tr('incomingRequest')}</Dialog.Title><Dialog.Description>{tr('checkPin')}</Dialog.Description></>}
-          footer={<div className="actions"><Button data-dialog-cancel disabled={decide.isPending} onClick={() => decide.mutate('decline')}>{tr('decline')}</Button>
-            <Button className="primary" disabled={decide.isPending} onClick={() => decide.mutate('accept')}>{tr('accept')}</Button></div>}>
-          <strong className="file-drop-pin">{String(offer?.pin ?? 0).padStart(4, '0')}</strong>
-          <ul>{offer?.files.map((file, index) => <li key={index}>{file.Name} · {bytes(file.Size)}</li>)}</ul>
+          footer={<div className="actions"><Button data-dialog-cancel disabled={decide.isPending} onClick={() => setReviewedOffer(null)}>{tr('later')}</Button>
+            <Button className="danger" disabled={!canDecide} onClick={() => submit('decline')}>{tr('decline')}</Button>
+            <Button className="primary" disabled={!canDecide} onClick={() => submit('accept')}>{tr('accept')}</Button></div>}>
+          <strong className="file-drop-pin">{String(reviewedOffer?.pin ?? 0).padStart(4, '0')}</strong>
+          <ul>{reviewedOffer?.files.map((file, index) => <li key={index}>{file.Name} · {bytes(file.Size)}</li>)}</ul>
+          {reviewedOffer && <p>{tr('requestExpires', { time: new Date(reviewedOffer.expires).toLocaleTimeString() })}</p>}
+          <p>{tr('laterHelp')}</p>
+          {(expired || unavailable) && <Notice>{tr(expired ? 'requestExpired' : 'requestUnavailable')}</Notice>}
+          {query.error && <Notice error>{query.error.message}</Notice>}
           {decide.error && <Notice error>{decide.error.message}</Notice>}
         </DialogContent>
       </Dialog.Portal>
